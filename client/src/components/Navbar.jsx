@@ -53,10 +53,19 @@ export default function Navbar() {
 
           <Link 
             to="/release" 
-            className={`btn btn-sm ${location.pathname === '/release' ? 'btn-vault-primary' : 'btn-vault-outline'} d-flex align-items-center gap-1`}
+            className={`btn btn-sm ${location.pathname.startsWith('/release') ? 'btn-vault-primary' : 'btn-vault-outline'} d-flex align-items-center gap-1`}
           >
-            <Clock size={15} /> Release Engine
+            <Clock size={15} /> Release Status
           </Link>
+
+          {isAuthenticated && (user?.role === 'trustee' || user?.role === 'both') && (
+            <Link 
+              to="/release/initiate" 
+              className={`btn btn-sm ${location.pathname === '/release/initiate' ? 'btn-vault-primary' : 'btn-vault-outline'} d-flex align-items-center gap-1 text-warning border-warning border-opacity-50`}
+            >
+              <Shield size={15} /> Trustee Portal
+            </Link>
+          )}
 
           {isAuthenticated && (
             <Link 
