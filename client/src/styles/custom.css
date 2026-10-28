@@ -1,0 +1,190 @@
+/* Digital Legacy Vault - Professional Security Design System */
+:root {
+  --vault-bg: #0b0f19;
+  --vault-card: #111827;
+  --vault-card-hover: #172033;
+  --vault-border: #1f293d;
+  --vault-border-focus: #3b82f6;
+  --vault-primary: #2563eb;
+  --vault-primary-hover: #1d4ed8;
+  --vault-accent: #06b6d4;
+  --vault-emerald: #10b981;
+  --vault-amber: #f59e0b;
+  --vault-rose: #f43f5e;
+  --vault-text-main: #f9fafb;
+  --vault-text-muted: #9ca3af;
+  --vault-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --vault-font-mono: 'JetBrains Mono', monospace;
+}
+
+body {
+  margin: 0;
+  font-family: var(--vault-font);
+  background-color: var(--vault-bg);
+  color: var(--vault-text-main);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle background glowing accents */
+.vault-glow-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.vault-glow-bg::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, rgba(6, 182, 212, 0.05) 50%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Vault Cards */
+.vault-card {
+  background-color: var(--vault-card);
+  border: 1px solid var(--vault-border);
+  border-radius: 12px;
+  transition: all 0.2s ease-in-out;
+}
+
+.vault-card:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.vault-card-header {
+  border-bottom: 1px solid var(--vault-border);
+  padding: 1rem 1.25rem;
+}
+
+/* Custom Navbar */
+.vault-navbar {
+  background-color: rgba(11, 15, 25, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--vault-border);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Buttons */
+.btn-vault-primary {
+  background-color: var(--vault-primary);
+  color: #ffffff;
+  border: 1px solid transparent;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 0.5rem 1.25rem;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-vault-primary:hover {
+  background-color: var(--vault-primary-hover);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+.btn-vault-outline {
+  background-color: transparent;
+  color: var(--vault-text-main);
+  border: 1px solid var(--vault-border);
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 0.5rem 1.25rem;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-vault-outline:hover {
+  background-color: var(--vault-card);
+  border-color: var(--vault-text-muted);
+  color: #ffffff;
+}
+
+.btn-vault-danger {
+  background-color: rgba(244, 63, 94, 0.15);
+  color: var(--vault-rose);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+.btn-vault-danger:hover {
+  background-color: var(--vault-rose);
+  color: #ffffff;
+}
+
+/* Form Controls */
+.form-control-vault {
+  background-color: #0d121f;
+  border: 1px solid var(--vault-border);
+  color: var(--vault-text-main);
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+}
+
+.form-control-vault:focus {
+  background-color: #0d121f;
+  border-color: var(--vault-border-focus);
+  color: var(--vault-text-main);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+  outline: none;
+}
+
+.form-control-vault::placeholder {
+  color: #6b7280;
+}
+
+/* Badges */
+.vault-badge {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.vault-badge-secure {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: var(--vault-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.vault-badge-pending {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: var(--vault-amber);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.vault-badge-alert {
+  background-color: rgba(244, 63, 94, 0.15);
+  color: var(--vault-rose);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+.vault-badge-trustee {
+  background-color: rgba(6, 182, 212, 0.15);
+  color: var(--vault-accent);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+/* Code / Hash / Cryptographic Displays */
+.vault-mono {
+  font-family: var(--vault-font-mono);
+  font-size: 0.85rem;
+  letter-spacing: -0.02em;
+}
+
+/* Grace Period Banner */
+.grace-banner {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, rgba(244, 63, 94, 0.15) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}

@@ -1,0 +1,21 @@
+{
+  "name": "digital-legacy-vault",
+  "version": "1.0.0",
+  "description": "Secure, zero-knowledge digital legacy and vault management system",
+  "private": true,
+  "scripts": {
+    "client": "npm --prefix client run dev",
+    "server": "npm --prefix server run dev",
+    "build:client": "npm --prefix client run build",
+    "test": "npm --prefix server test"
+  },
+  "keywords": [
+    "digital-legacy-vault",
+    "client-side-encryption",
+    "zero-knowledge",
+    "aes-256-gcm",
+    "release-workflow"
+  ],
+  "author": "Sneha Brahmbhatt (24BT04011)",
+  "license": "ISC"
+}
