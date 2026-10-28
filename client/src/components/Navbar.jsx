@@ -1,9 +1,17 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Shield, Lock, Users, Clock, FileText } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Shield, Lock, Users, Clock, FileText, LogOut, User } from 'lucide-react';
+import { useAuth } from '../features/auth/AuthContext.jsx';
 
 export default function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
 
   return (
     <nav className="vault-navbar py-3 px-4 mb-4">
@@ -25,39 +33,65 @@ export default function Navbar() {
           >
             Overview
           </Link>
-          <Link 
-            to="/vault" 
-            className={`btn btn-sm ${location.pathname === '/vault' ? 'btn-vault-primary' : 'btn-vault-outline'} d-flex align-items-center gap-1`}
-          >
-            <Lock size={15} /> Vault
-          </Link>
-          <Link 
-            to="/trustees" 
-            className={`btn btn-sm ${location.pathname === '/trustees' ? 'btn-vault-primary' : 'btn-vault-outline'} d-flex align-items-center gap-1`}
-          >
-            <Users size={15} /> Trustees
-          </Link>
+
+          {isAuthenticated && (
+            <>
+              <Link 
+                to="/vault" 
+                className={`btn btn-sm ${location.pathname === '/vault' ? 'btn-vault-primary' : 'btn-vault-outline'} d-flex align-items-center gap-1`}
+              >
+                <Lock size={15} /> Vault
+              </Link>
+              <Link 
+                to="/trustees" 
+                className={`btn btn-sm ${location.pathname === '/trustees' ? 'btn-vault-primary' : 'btn-vault-outline'} d-flex align-items-center gap-1`}
+              >
+                <Users size={15} /> Trustees
+              </Link>
+            </>
+          )}
+
           <Link 
             to="/release" 
             className={`btn btn-sm ${location.pathname === '/release' ? 'btn-vault-primary' : 'btn-vault-outline'} d-flex align-items-center gap-1`}
           >
             <Clock size={15} /> Release Engine
           </Link>
-          <Link 
-            to="/audit" 
-            className={`btn btn-sm ${location.pathname === '/audit' ? 'btn-vault-primary' : 'btn-vault-outline'} d-flex align-items-center gap-1`}
-          >
-            <FileText size={15} /> Audit Log
-          </Link>
+
+          {isAuthenticated && (
+            <Link 
+              to="/audit" 
+              className={`btn btn-sm ${location.pathname === '/audit' ? 'btn-vault-primary' : 'btn-vault-outline'} d-flex align-items-center gap-1`}
+            >
+              <FileText size={15} /> Audit Log
+            </Link>
+          )}
           
           <div className="vr bg-secondary opacity-50 mx-1"></div>
 
-          <Link to="/login" className="btn btn-sm btn-vault-outline">
-            Sign In
-          </Link>
-          <Link to="/register" className="btn btn-sm btn-vault-primary">
-            Register
-          </Link>
+          {isAuthenticated ? (
+            <div className="d-flex align-items-center gap-2">
+              <span className="vault-badge vault-badge-trustee d-none d-md-inline-flex">
+                <User size={12} /> {user?.name} ({user?.role})
+              </span>
+              <button 
+                onClick={handleLogout} 
+                className="btn btn-sm btn-vault-outline text-danger d-flex align-items-center gap-1"
+                title="Sign out of vault"
+              >
+                <LogOut size={14} /> Sign Out
+              </button>
+            </div>
+          ) : (
+            <div className="d-flex align-items-center gap-2">
+              <Link to="/login" className="btn btn-sm btn-vault-outline">
+                Sign In
+              </Link>
+              <Link to="/register" className="btn btn-sm btn-vault-primary">
+                Register
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </nav>

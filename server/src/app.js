@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import { ENV } from './config/env.js';
 import { notFoundHandler, globalErrorHandler } from './middleware/errorHandler.js';
+import authRoutes from './routes/authRoutes.js';
 
 const app = express();
 
@@ -77,6 +78,9 @@ app.get('/', (req, res) => {
     docs: '/api/health'
   });
 });
+
+// Authentication Routes
+app.use('/api/auth', authRoutes);
 
 // Error handling middleware
 app.use(notFoundHandler);

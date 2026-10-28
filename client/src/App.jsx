@@ -3,7 +3,10 @@ import { Routes, Route, Link } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import Footer from './components/Footer.jsx';
 import LandingPage from './pages/LandingPage.jsx';
-import { Shield, Lock, Users, Clock, FileText } from 'lucide-react';
+import LoginPage from './pages/LoginPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
+import { AuthProvider } from './features/auth/AuthContext.jsx';
+import { Lock, Users, Clock, FileText } from 'lucide-react';
 
 function PlaceholderPage({ title, description, icon: Icon, step }) {
   return (
@@ -29,38 +32,34 @@ function PlaceholderPage({ title, description, icon: Icon, step }) {
 
 export default function App() {
   return (
-    <div className="d-flex flex-column min-vh-100">
-      <Navbar />
-      <main className="flex-grow-1">
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route 
-            path="/login" 
-            element={<PlaceholderPage title="Secure Authentication" description="Client-side authentication with JWT tokens and key pair restoration." icon={Shield} step="Step 2" />} 
-          />
-          <Route 
-            path="/register" 
-            element={<PlaceholderPage title="Create Account & Generate Keys" description="Generate client-side RSA-OAEP keypair and register account." icon={Shield} step="Step 2" />} 
-          />
-          <Route 
-            path="/vault" 
-            element={<PlaceholderPage title="Encrypted Vault Dashboard" description="Client-side AES-256-GCM zero-knowledge vault entry management." icon={Lock} step="Step 3" />} 
-          />
-          <Route 
-            path="/trustees" 
-            element={<PlaceholderPage title="Trustee Management" description="Designate trustees and encrypt item keys with trustee public keys." icon={Users} step="Step 5" />} 
-          />
-          <Route 
-            path="/release" 
-            element={<PlaceholderPage title="Release Workflow Engine" description="Trustee initiation, OTP challenge, and 48-hour owner grace period status." icon={Clock} step="Step 6" />} 
-          />
-          <Route 
-            path="/audit" 
-            element={<PlaceholderPage title="Audit Trail" description="Tamper-resistant audit log of all system and release actions." icon={FileText} step="Step 7" />} 
-          />
-        </Routes>
-      </main>
-      <Footer />
-    </div>
+    <AuthProvider>
+      <div className="d-flex flex-column min-vh-100">
+        <Navbar />
+        <main className="flex-grow-1">
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route 
+              path="/vault" 
+              element={<PlaceholderPage title="Encrypted Vault Dashboard" description="Client-side AES-256-GCM zero-knowledge vault entry management." icon={Lock} step="Step 3" />} 
+            />
+            <Route 
+              path="/trustees" 
+              element={<PlaceholderPage title="Trustee Management" description="Designate trustees and encrypt item keys with trustee public keys." icon={Users} step="Step 5" />} 
+            />
+            <Route 
+              path="/release" 
+              element={<PlaceholderPage title="Release Workflow Engine" description="Trustee initiation, OTP challenge, and 48-hour owner grace period status." icon={Clock} step="Step 6" />} 
+            />
+            <Route 
+              path="/audit" 
+              element={<PlaceholderPage title="Audit Trail" description="Tamper-resistant audit log of all system and release actions." icon={FileText} step="Step 7" />} 
+            />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </AuthProvider>
   );
 }
