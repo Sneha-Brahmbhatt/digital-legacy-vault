@@ -8,6 +8,7 @@ import { ENV } from './config/env.js';
 import { notFoundHandler, globalErrorHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/authRoutes.js';
 import vaultRoutes from './routes/vaultRoutes.js';
+import trusteeRoutes from './routes/trusteeRoutes.js';
 
 const app = express();
 
@@ -85,6 +86,9 @@ app.use('/api/auth', authRoutes);
 
 // Encrypted Vault Routes
 app.use('/api/vault', vaultRoutes);
+
+// Trustee Management Routes
+app.use('/api/trustees', trusteeRoutes);
 
 // Error handling middleware
 app.use(notFoundHandler);

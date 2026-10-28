@@ -6,6 +6,7 @@ import LandingPage from './pages/LandingPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import VaultDashboard from './pages/VaultDashboard.jsx';
+import TrusteePage from './pages/TrusteePage.jsx';
 import { AuthProvider } from './features/auth/AuthContext.jsx';
 import { Lock, Users, Clock, FileText } from 'lucide-react';
 
@@ -42,10 +43,7 @@ export default function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/vault" element={<VaultDashboard />} />
-            <Route 
-              path="/trustees" 
-              element={<PlaceholderPage title="Trustee Management" description="Designate trustees and encrypt item keys with trustee public keys." icon={Users} step="Step 5" />} 
-            />
+            <Route path="/trustees" element={<TrusteePage />} />
             <Route 
               path="/release" 
               element={<PlaceholderPage title="Release Workflow Engine" description="Trustee initiation, OTP challenge, and 48-hour owner grace period status." icon={Clock} step="Step 6" />} 
