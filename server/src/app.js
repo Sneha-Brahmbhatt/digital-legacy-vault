@@ -9,6 +9,8 @@ import { notFoundHandler, globalErrorHandler } from './middleware/errorHandler.j
 import authRoutes from './routes/authRoutes.js';
 import vaultRoutes from './routes/vaultRoutes.js';
 import trusteeRoutes from './routes/trusteeRoutes.js';
+import releaseRoutes from './routes/releaseRoutes.js';
+import auditRoutes from './routes/auditRoutes.js';
 
 const app = express();
 
@@ -89,6 +91,12 @@ app.use('/api/vault', vaultRoutes);
 
 // Trustee Management Routes
 app.use('/api/trustees', trusteeRoutes);
+
+// Release Workflow Routes
+app.use('/api/release', releaseRoutes);
+
+// Audit Log Routes
+app.use('/api/audit', auditRoutes);
 
 // Error handling middleware
 app.use(notFoundHandler);

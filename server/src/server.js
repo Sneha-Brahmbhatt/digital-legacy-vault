@@ -1,10 +1,14 @@
 import app from './app.js';
 import { ENV } from './config/env.js';
 import { connectDB } from './config/db.js';
+import { startReleaseExpiryWorker } from './jobs/releaseExpiryWorker.js';
 
 const startServer = async () => {
   // Connect to Database
   await connectDB();
+
+  // Start background release expiry worker AFTER DB is ready
+  startReleaseExpiryWorker();
 
   // Listen on configured PORT
   const server = app.listen(ENV.PORT, () => {

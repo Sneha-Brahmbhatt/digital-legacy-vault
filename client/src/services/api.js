@@ -22,12 +22,23 @@ export const apiClient = async (endpoint, options = {}) => {
     const error = new Error(data.message || `Request failed with status ${response.status}`);
     error.status = response.status;
     error.errors = data.errors;
+    error.response = { data, status: response.status };
     throw error;
   }
 
   return data;
 };
 
+// Convenience helpers matching axios-like signatures
+apiClient.get = (url, options = {}) => apiClient(url, { ...options, method: 'GET' });
+apiClient.post = (url, body, options = {}) => apiClient(url, { ...options, method: 'POST', body: JSON.stringify(body) });
+apiClient.put = (url, body, options = {}) => apiClient(url, { ...options, method: 'PUT', body: JSON.stringify(body) });
+apiClient.delete = (url, options = {}) => apiClient(url, { ...options, method: 'DELETE' });
+
+
 export const checkHealth = async () => {
   return apiClient('/health');
 };
+
+export default apiClient;
+

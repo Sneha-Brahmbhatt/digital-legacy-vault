@@ -7,6 +7,9 @@ import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import VaultDashboard from './pages/VaultDashboard.jsx';
 import TrusteePage from './pages/TrusteePage.jsx';
+import ReleasePortal from './pages/ReleasePortal.jsx';
+import ReleasePendingPage from './pages/ReleasePendingPage.jsx';
+import AuditPage from './pages/AuditPage.jsx';
 import { AuthProvider } from './features/auth/AuthContext.jsx';
 import { Lock, Users, Clock, FileText } from 'lucide-react';
 
@@ -44,14 +47,9 @@ export default function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/vault" element={<VaultDashboard />} />
             <Route path="/trustees" element={<TrusteePage />} />
-            <Route 
-              path="/release" 
-              element={<PlaceholderPage title="Release Workflow Engine" description="Trustee initiation, OTP challenge, and 48-hour owner grace period status." icon={Clock} step="Step 6" />} 
-            />
-            <Route 
-              path="/audit" 
-              element={<PlaceholderPage title="Audit Trail" description="Tamper-resistant audit log of all system and release actions." icon={FileText} step="Step 7" />} 
-            />
+            <Route path="/release" element={<ReleasePendingPage />} />
+            <Route path="/release/initiate" element={<ReleasePortal />} />
+            <Route path="/audit" element={<AuditPage />} />
           </Routes>
         </main>
         <Footer />

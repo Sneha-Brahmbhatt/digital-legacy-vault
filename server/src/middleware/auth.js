@@ -36,6 +36,8 @@ export const authenticate = async (req, res, next) => {
   }
 };
 
+export const protect = authenticate;
+
 export const authorize = (...allowedRoles) => {
   return (req, res, next) => {
     if (!req.user) {
