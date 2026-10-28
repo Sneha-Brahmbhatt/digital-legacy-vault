@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import { ENV } from './config/env.js';
 import { notFoundHandler, globalErrorHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/authRoutes.js';
+import vaultRoutes from './routes/vaultRoutes.js';
 
 const app = express();
 
@@ -81,6 +82,9 @@ app.get('/', (req, res) => {
 
 // Authentication Routes
 app.use('/api/auth', authRoutes);
+
+// Encrypted Vault Routes
+app.use('/api/vault', vaultRoutes);
 
 // Error handling middleware
 app.use(notFoundHandler);

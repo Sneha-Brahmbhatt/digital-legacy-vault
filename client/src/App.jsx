@@ -5,6 +5,7 @@ import Footer from './components/Footer.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
+import VaultDashboard from './pages/VaultDashboard.jsx';
 import { AuthProvider } from './features/auth/AuthContext.jsx';
 import { Lock, Users, Clock, FileText } from 'lucide-react';
 
@@ -40,10 +41,7 @@ export default function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            <Route 
-              path="/vault" 
-              element={<PlaceholderPage title="Encrypted Vault Dashboard" description="Client-side AES-256-GCM zero-knowledge vault entry management." icon={Lock} step="Step 3" />} 
-            />
+            <Route path="/vault" element={<VaultDashboard />} />
             <Route 
               path="/trustees" 
               element={<PlaceholderPage title="Trustee Management" description="Designate trustees and encrypt item keys with trustee public keys." icon={Users} step="Step 5" />} 
