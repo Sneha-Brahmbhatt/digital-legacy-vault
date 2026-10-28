@@ -5,6 +5,8 @@ import {
   generateAesKey, 
   encryptData, 
   decryptData, 
+  encryptBinaryData,
+  decryptBinaryData,
   importPublicKey, 
   wrapKeyForTrustee, 
   unwrapKeyByTrustee 
@@ -61,7 +63,7 @@ export function useVault(selectedCategory = '') {
               ...item,
               title,
               payload,
-              aesKey, // held in client state for re-encryption or editing
+              aesKey, // retained in client memory for decrypting attached files
               isDecrypted: true
             };
           } catch (decErr) {
@@ -83,14 +85,42 @@ export function useVault(selectedCategory = '') {
     decryptAll();
   }, [rawItems, privateKey]);
 
-  // Create a new encrypted vault entry
-  const createEntry = async ({ category, title, payload, tags = [] }) => {
+  // Create a new encrypted vault entry with optional file
+  const createEntry = async ({ category, title, payload, file = null, tags = [] }) => {
     if (!user?.publicKey) {
       throw new Error('Public key not found for current user session.');
     }
 
     // 1. Generate unique AES-256-GCM DEK
     const aesKey = await generateAesKey();
+
+    let fileMetadata = null;
+
+    // Handle client-side encrypted file upload if attached
+    if (file) {
+      const arrayBuffer = await file.arrayBuffer();
+      // Encrypt file binary client-side
+      const { ciphertextBase64, ivBase64: fileIv } = await encryptBinaryData(arrayBuffer, aesKey);
+
+      // Upload ciphertext blob
+      const uploadRes = await apiClient('/vault/upload-document', {
+        method: 'POST',
+        body: JSON.stringify({
+          ciphertextBase64,
+          mimeType: file.type || 'application/octet-stream'
+        })
+      });
+
+      fileMetadata = {
+        storageId: uploadRes.data.storageId,
+        storageType: uploadRes.data.storageType,
+        fileName: file.name,
+        mimeType: file.type || 'application/octet-stream',
+        size: file.size,
+        fileIv,
+        isEncrypted: true
+      };
+    }
 
     // 2. Encrypt title and payload
     const { ciphertext: encryptedTitle, iv: titleIv } = await encryptData(title, aesKey);
@@ -110,12 +140,39 @@ export function useVault(selectedCategory = '') {
         encryptedData,
         dataIv,
         encryptedKeyForOwner,
+        fileMetadata,
         tags
       })
     });
 
     await fetchItems();
     return res.data;
+  };
+
+  // Download and decrypt file attached to an entry
+  const downloadAndDecryptFile = async (item) => {
+    if (!item.aesKey) {
+      throw new Error('Decryption key not available in memory.');
+    }
+
+    const res = await apiClient(`/vault/${item._id}/document`);
+    const { ciphertextBase64, fileMetadata } = res.data;
+
+    const decryptedBuffer = await decryptBinaryData(
+      ciphertextBase64,
+      fileMetadata.fileIv,
+      item.aesKey
+    );
+
+    const blob = new Blob([decryptedBuffer], { type: fileMetadata.mimeType });
+    const downloadUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = fileMetadata.fileName || 'decrypted_document';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(downloadUrl);
   };
 
   // Delete an entry
@@ -131,6 +188,7 @@ export function useVault(selectedCategory = '') {
     error,
     refresh: fetchItems,
     createEntry,
+    downloadAndDecryptFile,
     deleteEntry
   };
 }

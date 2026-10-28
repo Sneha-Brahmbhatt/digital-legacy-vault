@@ -189,6 +189,38 @@ export async function decryptData(ciphertextBase64, ivBase64, aesKey) {
 }
 
 /**
+ * Encrypt binary document ArrayBuffer using AES-256-GCM
+ */
+export async function encryptBinaryData(arrayBuffer, aesKey) {
+  const iv = window.crypto.getRandomValues(new Uint8Array(12));
+
+  const encryptedBuffer = await window.crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    aesKey,
+    arrayBuffer
+  );
+
+  return {
+    ciphertextBase64: bufferToBase64(encryptedBuffer),
+    ivBase64: bufferToBase64(iv.buffer)
+  };
+}
+
+/**
+ * Decrypt binary document ArrayBuffer using AES-256-GCM
+ */
+export async function decryptBinaryData(ciphertextBase64, ivBase64, aesKey) {
+  const ciphertextBuffer = base64ToBuffer(ciphertextBase64);
+  const ivBuffer = base64ToBuffer(ivBase64);
+
+  return window.crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: new Uint8Array(ivBuffer) },
+    aesKey,
+    ciphertextBuffer
+  );
+}
+
+/**
  * Wrap (encrypt) an AES-256 DEK using a recipient's RSA-OAEP Public Key
  * Core mechanism for Zero-Knowledge Key Handover to Trustees
  */

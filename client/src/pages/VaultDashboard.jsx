@@ -10,7 +10,7 @@ export default function VaultDashboard() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const { items, loading, decrypting, error, refresh, createEntry, deleteEntry } = useVault(selectedCategory);
+  const { items, loading, decrypting, error, refresh, createEntry, downloadAndDecryptFile, deleteEntry } = useVault(selectedCategory);
 
   const filteredItems = items.filter(item => {
     if (!searchTerm) return true;
@@ -187,7 +187,7 @@ export default function VaultDashboard() {
       ) : filteredItems.length > 0 ? (
         <div>
           {filteredItems.map(item => (
-            <VaultCard key={item._id} item={item} onDelete={deleteEntry} />
+            <VaultCard key={item._id} item={item} onDelete={deleteEntry} onDownloadFile={downloadAndDecryptFile} />
           ))}
         </div>
       ) : (

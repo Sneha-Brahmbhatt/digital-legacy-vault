@@ -1,4 +1,5 @@
 import VaultItem from '../models/VaultItem.js';
+import { uploadEncryptedBlob, getEncryptedBlob } from '../services/storageService.js';
 
 export const getVaultItems = async (req, res, next) => {
   try {
@@ -159,6 +160,64 @@ export const deleteVaultItem = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: 'Vault entry deleted successfully.'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const uploadEncryptedDocument = async (req, res, next) => {
+  try {
+    const { ciphertextBase64, mimeType } = req.body;
+
+    if (!ciphertextBase64) {
+      return res.status(400).json({
+        success: false,
+        message: 'Encrypted ciphertext is required.'
+      });
+    }
+
+    const storageResult = await uploadEncryptedBlob(ciphertextBase64, mimeType);
+
+    res.status(200).json({
+      success: true,
+      message: 'Encrypted document stored successfully.',
+      data: storageResult
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const downloadEncryptedDocument = async (req, res, next) => {
+  try {
+    const item = await VaultItem.findById(req.params.id);
+
+    if (!item || !item.fileMetadata?.storageId) {
+      return res.status(404).json({
+        success: false,
+        message: 'Encrypted document not found.'
+      });
+    }
+
+    if (!item.ownerId.equals(req.user._id)) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied.'
+      });
+    }
+
+    const ciphertextBase64 = await getEncryptedBlob(
+      item.fileMetadata.storageId,
+      item.fileMetadata.storageType
+    );
+
+    res.status(200).json({
+      success: true,
+      data: {
+        ciphertextBase64,
+        fileMetadata: item.fileMetadata
+      }
     });
   } catch (error) {
     next(error);

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Lock, FileText, MessageSquare, Eye, EyeOff, Copy, Check, Trash2, Key, Tag, Calendar } from 'lucide-react';
+import { Lock, FileText, MessageSquare, Eye, EyeOff, Copy, Check, Trash2, Key, Tag, Calendar, Download, FileCheck, Loader2 } from 'lucide-react';
 
-export default function VaultCard({ item, onDelete }) {
+export default function VaultCard({ item, onDelete, onDownloadFile }) {
   const [expanded, setExpanded] = useState(false);
   const [showSecret, setShowSecret] = useState(false);
   const [copied, setCopied] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   const getCategoryIcon = () => {
     switch (item.category) {
@@ -44,6 +45,17 @@ export default function VaultCard({ item, onDelete }) {
     }
   };
 
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      await onDownloadFile(item);
+    } catch (err) {
+      alert(err.message || 'Failed to download and decrypt document.');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <div className="vault-card mb-3 p-3 p-md-4">
       <div className="d-flex align-items-start justify-content-between gap-3">
@@ -62,6 +74,11 @@ export default function VaultCard({ item, onDelete }) {
               {item.isDecrypted && (
                 <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 small py-0">
                   Decrypted
+                </span>
+              )}
+              {item.fileMetadata?.storageId && (
+                <span className="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 small py-0">
+                  Encrypted File Attached
                 </span>
               )}
             </div>
@@ -157,10 +174,47 @@ export default function VaultCard({ item, onDelete }) {
 
           {item.category === 'document' && (
             <div>
-              <div className="text-muted small mb-1">Decrypted Document Body:</div>
-              <div className="p-3 rounded bg-dark border border-secondary border-opacity-25 vault-mono text-white small whitespace-pre-wrap">
-                {item.payload?.docContent || 'No document text content provided.'}
-              </div>
+              {item.payload?.docContent && (
+                <div className="mb-3">
+                  <div className="text-muted small mb-1">Document Text / Summary:</div>
+                  <div className="p-3 rounded bg-dark border border-secondary border-opacity-25 vault-mono text-white small whitespace-pre-wrap">
+                    {item.payload.docContent}
+                  </div>
+                </div>
+              )}
+
+              {/* Encrypted Document File Attachment */}
+              {item.fileMetadata?.storageId && (
+                <div className="p-3 rounded bg-dark border border-info border-opacity-25 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-2">
+                  <div className="d-flex align-items-center gap-2">
+                    <FileCheck size={20} className="text-info" />
+                    <div>
+                      <div className="text-white small fw-medium">
+                        {item.fileMetadata.fileName || 'Encrypted Confidential File'}
+                      </div>
+                      <div className="text-muted" style={{ fontSize: '0.75rem' }}>
+                        Size: {(item.fileMetadata.size / 1024).toFixed(1)} KB | Encrypted: AES-256-GCM
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-vault-primary d-flex align-items-center gap-2"
+                    onClick={handleDownload}
+                    disabled={downloading}
+                  >
+                    {downloading ? (
+                      <>
+                        <Loader2 size={14} className="spin" /> Decrypting in Browser...
+                      </>
+                    ) : (
+                      <>
+                        <Download size={14} /> Decrypt & Download
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

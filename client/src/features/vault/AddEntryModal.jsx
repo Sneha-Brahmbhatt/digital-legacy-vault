@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, FileText, MessageSquare, Shield, X, Eye, EyeOff, Plus, AlertCircle } from 'lucide-react';
+import { Lock, FileText, MessageSquare, Shield, X, Eye, EyeOff, Plus, AlertCircle, UploadCloud, File } from 'lucide-react';
 
 export default function AddEntryModal({ isOpen, onClose, onSave }) {
   const [category, setCategory] = useState('credential');
@@ -16,6 +16,7 @@ export default function AddEntryModal({ isOpen, onClose, onSave }) {
 
   // Document fields
   const [docContent, setDocContent] = useState('');
+  const [file, setFile] = useState(null);
 
   // Message fields
   const [recipient, setRecipient] = useState('');
@@ -25,6 +26,18 @@ export default function AddEntryModal({ isOpen, onClose, onSave }) {
   const [notes, setNotes] = useState('');
 
   if (!isOpen) return null;
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      if (selectedFile.size > 5 * 1024 * 1024) {
+        setError('Selected file exceeds maximum allowed size of 5MB.');
+        return;
+      }
+      setFile(selectedFile);
+      setError(null);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,6 +61,7 @@ export default function AddEntryModal({ isOpen, onClose, onSave }) {
         category,
         title,
         payload,
+        file: category === 'document' ? file : null,
         tags: parsedTags
       });
 
@@ -57,6 +71,7 @@ export default function AddEntryModal({ isOpen, onClose, onSave }) {
       setPassword('');
       setUrl('');
       setDocContent('');
+      setFile(null);
       setRecipient('');
       setMessageBody('');
       setNotes('');
@@ -190,17 +205,34 @@ export default function AddEntryModal({ isOpen, onClose, onSave }) {
 
               {/* Document specific inputs */}
               {category === 'document' && (
-                <div className="mb-3">
-                  <label className="form-label text-muted small fw-medium">Encrypted Document Body / Legal Clauses</label>
-                  <textarea
-                    rows={5}
-                    className="form-control form-control-vault w-100"
-                    placeholder="Enter sensitive document details, recovery codes, or safe locker combinations..."
-                    value={docContent}
-                    onChange={(e) => setDocContent(e.target.value)}
-                    required
-                  />
-                </div>
+                <>
+                  <div className="mb-3">
+                    <label className="form-label text-muted small fw-medium">Encrypted Document Body / Legal Clauses</label>
+                    <textarea
+                      rows={4}
+                      className="form-control form-control-vault w-100"
+                      placeholder="Enter sensitive document details, recovery codes, or safe locker combinations..."
+                      value={docContent}
+                      onChange={(e) => setDocContent(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label text-muted small fw-medium d-flex align-items-center gap-1">
+                      <UploadCloud size={16} /> Attach Confidential Document (Max 5MB)
+                    </label>
+                    <input
+                      type="file"
+                      className="form-control form-control-vault w-100"
+                      onChange={handleFileChange}
+                    />
+                    {file && (
+                      <div className="mt-2 small text-info d-flex align-items-center gap-1">
+                        <File size={14} /> Selected: {file.name} ({(file.size / 1024).toFixed(1)} KB) — will be encrypted before upload
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
 
               {/* Message specific inputs */}
@@ -257,7 +289,7 @@ export default function AddEntryModal({ isOpen, onClose, onSave }) {
               <div className="p-3 rounded bg-dark border border-secondary border-opacity-25 small text-muted d-flex align-items-center gap-2">
                 <Shield size={16} className="text-success flex-shrink-0" />
                 <span>
-                  <strong>Zero-Knowledge Assurance:</strong> Data will be encrypted in your browser using AES-256-GCM before transmission. The server receives only ciphertext.
+                  <strong>Zero-Knowledge Storage:</strong> Cloudinary and backend servers receive only client-encrypted binary ciphertext. Plaintext never leaves your browser unencrypted.
                 </span>
               </div>
             </div>
@@ -270,7 +302,7 @@ export default function AddEntryModal({ isOpen, onClose, onSave }) {
                 {submitting ? (
                   <>
                     <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    Encrypting & Saving...
+                    Encrypting & Uploading...
                   </>
                 ) : (
                   <>

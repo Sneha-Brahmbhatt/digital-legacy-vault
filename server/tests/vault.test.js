@@ -6,7 +6,7 @@ import User from '../src/models/User.js';
 import VaultItem from '../src/models/VaultItem.js';
 import { generateAccessToken } from '../src/utils/tokenUtils.js';
 
-describe('Vault Management & Zero-Knowledge Security Suite (FR-2, FR-3, NFR-1)', () => {
+describe('Vault Management & Zero-Knowledge Security Suite (FR-2, FR-3, FR-4, NFR-1)', () => {
   let mockUsers = new Map();
   let mockVault = new Map();
   let owner1, owner2, token1, token2;
@@ -113,7 +113,6 @@ describe('Vault Management & Zero-Knowledge Security Suite (FR-2, FR-3, NFR-1)',
   });
 
   it('FR-2: lists vault entries belonging to the authenticated owner', async () => {
-    // Add item for Owner 1
     await request(app)
       .post('/api/vault')
       .set('Authorization', `Bearer ${token1}`)
@@ -169,7 +168,6 @@ describe('Vault Management & Zero-Knowledge Security Suite (FR-2, FR-3, NFR-1)',
 
     const itemId = createRes.body.data._id;
 
-    // Owner 2 attempts to read Owner 1's item
     const res = await request(app)
       .get(`/api/vault/${itemId}`)
       .set('Authorization', `Bearer ${token2}`)
@@ -188,13 +186,11 @@ describe('Vault Management & Zero-Knowledge Security Suite (FR-2, FR-3, NFR-1)',
 
     const itemId = createRes.body.data._id;
 
-    // Owner 2 attempts to delete Owner 1's item
     await request(app)
       .delete(`/api/vault/${itemId}`)
       .set('Authorization', `Bearer ${token2}`)
       .expect(403);
 
-    // Verify item still exists in database
     expect(mockVault.has(itemId.toString())).toBe(true);
   });
 
@@ -215,11 +211,77 @@ describe('Vault Management & Zero-Knowledge Security Suite (FR-2, FR-3, NFR-1)',
     expect(mockVault.has(itemId.toString())).toBe(false);
   });
 
+  it('FR-4: stores client-side encrypted document blob and retrieves it securely', async () => {
+    const fakeCiphertextBase64 = Buffer.from('ClientSideEncryptedBinaryDataBlob').toString('base64');
+
+    // 1. Upload encrypted file
+    const uploadRes = await request(app)
+      .post('/api/vault/upload-document')
+      .set('Authorization', `Bearer ${token1}`)
+      .send({
+        ciphertextBase64: fakeCiphertextBase64,
+        mimeType: 'application/pdf'
+      })
+      .expect(200);
+
+    expect(uploadRes.body.success).toBe(true);
+    expect(uploadRes.body.data.storageId).toBeDefined();
+
+    // 2. Link file in a vault entry
+    const entryRes = await request(app)
+      .post('/api/vault')
+      .set('Authorization', `Bearer ${token1}`)
+      .send({
+        ...validCiphertextPayload,
+        category: 'document',
+        fileMetadata: {
+          storageId: uploadRes.body.data.storageId,
+          storageType: uploadRes.body.data.storageType,
+          fileName: 'Will.pdf',
+          size: 1024,
+          isEncrypted: true
+        }
+      })
+      .expect(201);
+
+    const itemId = entryRes.body.data._id;
+
+    // 3. Download encrypted document as Owner 1
+    const downloadRes = await request(app)
+      .get(`/api/vault/${itemId}/document`)
+      .set('Authorization', `Bearer ${token1}`)
+      .expect(200);
+
+    expect(downloadRes.body.success).toBe(true);
+    expect(downloadRes.body.data.ciphertextBase64).toBe(fakeCiphertextBase64);
+
+    // 4. Verify Owner 2 cannot download Owner 1 document (403 Forbidden)
+    await request(app)
+      .get(`/api/vault/${itemId}/document`)
+      .set('Authorization', `Bearer ${token2}`)
+      .expect(403);
+  });
+
+  it('Validation: rejects document upload exceeding 5MB size limit', async () => {
+    // Generate a buffer larger than 5MB
+    const largeBuffer = Buffer.alloc(5.5 * 1024 * 1024);
+    const largeCiphertextBase64 = largeBuffer.toString('base64');
+
+    const res = await request(app)
+      .post('/api/vault/upload-document')
+      .set('Authorization', `Bearer ${token1}`)
+      .send({ ciphertextBase64: largeCiphertextBase64 })
+      .expect(500); // Storage service throws error caught by global error handler
+
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toContain('exceeds maximum allowed size');
+  });
+
   it('Validation: rejects item creation if required cryptographic ciphertext or IVs are missing', async () => {
     const res = await request(app)
       .post('/api/vault')
       .set('Authorization', `Bearer ${token1}`)
-      .send({ category: 'credential' }) // missing encrypted fields
+      .send({ category: 'credential' })
       .expect(400);
 
     expect(res.body.success).toBe(false);
